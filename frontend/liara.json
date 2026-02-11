@@ -1,0 +1,6 @@
+{
+  "platform": "next",
+  "next": {
+    "version": "14"
+  }
+}

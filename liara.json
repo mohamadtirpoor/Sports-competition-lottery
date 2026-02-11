@@ -1,0 +1,10 @@
+{
+  "platform": "node",
+  "node": {
+    "version": "18"
+  },
+  "port": 5000,
+  "build": {
+    "location": "backend"
+  }
+}
