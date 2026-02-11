@@ -9,37 +9,13 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // تنظیمات CORS
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://tournament-app.liara.run',
-  // آدرس دامنه خودتون رو اینجا اضافه کنید
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    // اجازه به درخواست‌های بدون origin (مثل mobile apps یا curl)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      // اگر در production هستیم، همه origin ها رو قبول کن (موقتی)
-      if (process.env.NODE_ENV === 'production') {
-        return callback(null, true);
-      }
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
-
+app.use(cors());
 app.use(bodyParser.json());
 
-// سرو کردن فایل‌های استاتیک Next.js (برای production)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/.next/static')));
-  app.use(express.static(path.join(__dirname, '../frontend/public')));
-}
+// سرو کردن فایل‌های استاتیک Frontend
+app.use(express.static(path.join(__dirname, '../frontend/.next/standalone')));
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use('/_next/static', express.static(path.join(__dirname, '../frontend/.next/static')));
 
 // Database setup
 const db = new sqlite3.Database(path.join(__dirname, 'tournament.db'), (err) => {
@@ -418,6 +394,14 @@ app.get('/api/tournaments/:id/leaderboard', (req, res) => {
     }
     res.json(rows);
   });
+});
+
+// سرو کردن Frontend (Next.js)
+app.get('*', (req, res) => {
+  // اگر درخواست برای API نیست، صفحه اصلی رو نمایش بده
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../frontend/.next/standalone/index.html'));
+  }
 });
 
 app.listen(PORT, () => {
