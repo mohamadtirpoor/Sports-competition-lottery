@@ -2,5 +2,10 @@
   "platform": "next",
   "next": {
     "version": "14"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "https://[BACKEND-URL].liara.run/api"
+    }
   }
 }

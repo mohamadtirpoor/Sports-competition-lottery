@@ -8,7 +8,31 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// تنظیمات CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://tournament-app.liara.run',
+  // آدرس دامنه خودتون رو اینجا اضافه کنید
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // اجازه به درخواست‌های بدون origin (مثل mobile apps یا curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      // اگر در production هستیم، همه origin ها رو قبول کن (موقتی)
+      if (process.env.NODE_ENV === 'production') {
+        return callback(null, true);
+      }
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
 app.use(bodyParser.json());
 
 // سرو کردن فایل‌های استاتیک Next.js (برای production)
